@@ -65,7 +65,89 @@ const PDU_PORTS = [
 
 export default function BasicSchematic() {
   const diagramRef = useRef<HTMLDivElement>(null);
-
+  const linkDataArray =       [
+    // Rack 1 connections
+    {
+      from: 'Outlets Rack 1',
+      to: 'PDU',
+      label: 'ETB-092',
+      color: '#1b8ea6',
+      fromPort: '13',
+      toPort: 'X5',
+      group: 'Rack 1'
+    },
+    {
+      from: 'HV-Pwr in',
+      to: 'PDU',
+      label: 'ETB-094',
+      color: '#1b8ea6',
+      fromPort: 'Pwr in',
+      toPort: 'X9',
+      group: 'Rack 1'
+    },
+    {
+      from: 'TMP2-Pwr in',
+      to: 'PDU',
+      label: 'ETB-093',
+      color: '#1b8ea6',
+      fromPort: 'Pwr in',
+      toPort: 'X7',
+      group: 'Rack 1'
+    },
+    {
+      from: 'TMP1-Pwr in',
+      to: 'PDU',
+      label: 'ETB-091',
+      color: '#1b8ea6',
+      fromPort: 'Pwr in',
+      toPort: 'X4',
+      group: 'Rack 1'
+    },
+    {
+      from: 'TMP3-Pwr in',
+      to: 'PDU',
+      label: 'ETB-221',
+      color: '#1b8ea6',
+      fromPort: 'Pwr in',
+      toPort: 'X3',
+      group: 'Rack 1'
+    },
+    {
+      from: 'RF1-Pwr in',
+      to: 'PDU',
+      label: 'ETB-089',
+      color: '#1b8ea6',
+      fromPort: 'Pwr in',
+      toPort: 'X2',
+      group: 'Rack 1'
+    },
+    // Rack 2 connections
+    // ... existing code ...
+    // ... existing code ...
+    {
+      from: 'Outlets Rack 2',  // Changed to use the node key instead of port ID
+      to: 'Pwr in-Network Switch',
+      label: 'ETB-082',
+      color: '#1b8ea6',
+      fromPort: '22',  // This specifies which port on the node to use
+      toPort: 'Pwr in',
+      group: 'Rack 2'
+    },
+  ];
+  function assignCurvinessToLinks(links: any[]) {
+    const linkMap = new Map<string, number>();
+    links.forEach(link => {
+      const key = `${link.from}->${link.to}`;
+      const revKey = `${link.to}->${link.from}`;
+  
+      const count = linkMap.get(key) || 0;
+      link.curviness = 50 * (count + 1); // Increased curviness value
+  
+      linkMap.set(key, count + 1);
+      linkMap.set(revKey, count + 1);
+    });
+  }
+  
   useEffect(() => {
     const $ = go.GraphObject.make;
 
@@ -207,12 +289,31 @@ export default function BasicSchematic() {
         corner: 10,
         fromEndSegmentLength: 40,
         toEndSegmentLength: 40,
-        curviness: 20
+        curviness: 100,
+        relinkableFrom: true,
+        relinkableTo: true,
+        reshapable: true,
+        adjusting: go.Link.End,
+        fromShortLength: 4,  // Spacing from source node
+        toShortLength: 4,    // Spacing from target node
+        layerName: "Background"  // Draw links in background
       },
-      $(go.Shape, { stroke: "#357", strokeWidth: 2 }),
+      $(go.Shape, { 
+        stroke: "#357", 
+        strokeWidth: 2,
+        segmentOffset: new go.Point(10, 10)  // Offset parallel links vertically
+      }),
+      new go.Binding("curviness", "curviness"),
+      new go.Binding("fromSpot", "fromSpot", go.Spot.parse).makeTwoWay(go.Spot.stringify),
+      new go.Binding("toSpot", "toSpot", go.Spot.parse).makeTwoWay(go.Spot.stringify),
       $(go.Shape, { toArrow: "Standard", fill: "#357" }),
-      $(go.TextBlock, new go.Binding("text", "label"), { segmentOffset: new go.Point(0, -10) })
+      $(go.TextBlock,
+        { segmentOffset: new go.Point(0, -10) },
+        new go.Binding("text", "label")
+      )
     );
+    
+    
     // Inner Outlet node template
     diagram.nodeTemplateMap.add("InnerOutlet",
       $(go.Node, "Auto",
@@ -382,7 +483,8 @@ export default function BasicSchematic() {
         )
       )
     );
-
+    assignCurvinessToLinks(linkDataArray);
+    
     // Model with sample nodes
     diagram.model = new go.GraphLinksModel(
       [
@@ -511,48 +613,7 @@ export default function BasicSchematic() {
         },
         { key: 'PDU', group: 'Rack 2', text: 'PDU', category: "PDU", ports: PDU_PORTS[1].ports },
       ],
-      [
-        // Rack 1 connections
-        {
-          from: 'Outlets Rack 1',
-          to: 'PDU',
-          label: 'ETB-092',
-          color: '#1b8ea6',
-          fromPort: '13',
-          toPort: 'X5',
-          group: 'Rack 1'
-        },
-        {
-          from: 'HV-Pwr in',
-          to: 'PDU',
-          label: 'ETB-092',
-          color: '#1b8ea6',
-          fromPort: 'Pwr in',
-          toPort: 'X9',
-          group: 'Rack 1'
-        },
-        {
-          from: 'TMP2-Pwr in',
-          to: 'PDU',
-          label: 'ETB-092',
-          color: '#1b8ea6',
-          fromPort: 'Pwr in',
-          toPort: 'X7',
-          group: 'Rack 1'
-        },
-        // Rack 2 connections
-        // ... existing code ...
-        // ... existing code ...
-        {
-          from: 'Outlets Rack 2',  // Changed to use the node key instead of port ID
-          to: 'Pwr in-Network Switch',
-          label: 'ETB-082',
-          color: '#1b8ea6',
-          fromPort: '22',  // This specifies which port on the node to use
-          toPort: 'Pwr in',
-          group: 'Rack 2'
-        },
-      ]
+      linkDataArray
     );
 
     // Tell GoJS which properties to use for port-to-port linking
