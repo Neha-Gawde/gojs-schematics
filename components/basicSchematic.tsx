@@ -62,10 +62,134 @@ const PDU_PORTS = [
     ]
   },
 ]
+const nodeDataArray = [
+  { key: 'Rack 2', isGroup: true, label: "Rack 2" },
+  { key: 'Rack 1', isGroup: true, label: "Rack 1" },
+  {
+    key: 'Outlets Rack 1', label: "Outlets", group: 'Rack 1', text: 'Outlets', isBold: true, category: "InnerOutlet", ports: [
+      { portId: "11", label: "11", spot: go.Spot.Left, fromLinkable: true, toLinkable: true },
+      { portId: "12", label: "12", spot: go.Spot.Left, fromLinkable: true, toLinkable: true },
+      { portId: "13", label: "13", spot: go.Spot.Right, fromLinkable: true, toLinkable: true },
+    ]
+  },
+  {
+    key: 'HV-Pwr in',
+    group: 'Rack 1',
+    text: 'HV',
+    ports: [
+      { portId: "Pwr in", label: "Pwr in", spot: go.Spot.Left },
+    ], label: "HV"
+  },
+  {
+    key: 'TMP2-Pwr in',
+    group: 'Rack 1',
+    text: 'TMP2',
+    ports: [
+      { portId: "Pwr in", label: "Pwr in", spot: go.Spot.Left },
+    ], label: "TMP2"
+  },
+  {
+    key: 'TMP1-Pwr in',
+    group: 'Rack 1',
+    text: 'TMP1',
+    ports: [
+      { portId: "Pwr in", label: "Pwr in", spot: go.Spot.Left },
+    ], label: "TMP1"
+  },
+  {
+    key: 'TMP3-Pwr in',
+    group: 'Rack 1',
+    text: 'TMP3',
+    ports: [
+      { portId: "Pwr in", label: "Pwr in", spot: go.Spot.Left },
+    ], label: "TMP3"
+  },
+  {
+    key: 'RF1-Pwr in',
+    group: 'Rack 1',
+    text: 'RF1',
+    ports: [
+      { portId: "Pwr in", label: "Pwr in", spot: go.Spot.Left },
+    ], label: "RF1"
+  },
+  {
+    key: 'PDU',
+    group: 'Rack 1',
+    text: 'PDU',
+    category: "PDU",
+    ports: PDU_PORTS[0].ports
+  },
+  {
+    key: 'Outlets Rack 2',
+    label: "Outlets",
+    group: 'Rack 2',
+    text: 'Outlets',
+    isBold: true,
+    category: "InnerOutlet",
+    ports: [
+      { portId: "21", label: "21", spot: go.Spot.Left, key: "21", fromLinkable: true, toLinkable: true, },
+      { portId: "22", label: "22", spot: go.Spot.Left, key: "22", fromLinkable: true, toLinkable: true, },
+      { portId: "23", label: "23", spot: go.Spot.Right, key: "23", fromLinkable: true, toLinkable: true, },
+    ]
+  },
+  {
+    key: 'Pwr in-Network Switch',
+    group: 'Rack 2',
+    text: 'Network Switch',
+    ports: [
+      { portId: "Pwr in", label: "Pwr in", spot: go.Spot.Left, key: "Pwr in", fromLinkable: true, toLinkable: true, },
+    ], label: "Network Switch"
+  },
+  {
+    key: 'ES5-ES4 T21, T26',
+    group: 'Rack 2',
+    text: 'ES5 - cRIO',
+    isBold: true,
+    isItalic: true,
+    ports: [
+      { portId: "ES5 T31, T34", label: "ES5 T31, T34", spot: go.Spot.Left },
+    ], label: "ES5 - cRIO"
+  },
+  {
+    key: 'ES4-ES3 T21, T26',
+    group: 'Rack 2',
+    text: 'ES4 – Digital 2',
+    isBold: true, isItalic: true,
+    ports: [
+      { portId: "ES4 T21, T26", label: "ES4 T21, T26", spot: go.Spot.Left },
+    ], label: "ES4 - Digital 2"
+  },
+  {
+    key: 'ES3-ES2 T21, T26',
+    group: 'Rack 2',
+    text: 'ES3 – Digital 1',
+    isBold: true, isItalic: true,
+    ports: [
+      { portId: "ES3 T21, T26", label: "ES3 T21, T26", spot: go.Spot.Left },
+    ], label: "ES3 - Digital 1"
+  },
+  {
+    key: 'ES2-ES1 T21, T26',
+    group: 'Rack 2',
+    text: 'ES2 – n/c',
+    isBold: true, isItalic: true,
+    ports: [
+      { portId: "", label: "", spot: go.Spot.Left },
+    ], label: "ES2 - n/c"
+  },
+  {
+    key: 'ES1-ES1 T21, T26',
+    group: 'Rack 2',
+    text: 'ES1 - Interlocks',
+    isBold: true, isItalic: true,
+    ports: [
+      { portId: "ES1 T21, T26", label: "ES1 T21, T26", spot: go.Spot.Left },
+    ], label: "ES1 - Interlocks"
+  },
+  { key: 'PDU', group: 'Rack 2', text: 'PDU', category: "PDU", ports: PDU_PORTS[1].ports },
+];
 
-export default function BasicSchematic() {
-  const diagramRef = useRef<HTMLDivElement>(null);
-  const linkDataArray =       [
+  const linkDataArray = [
     // Rack 1 connections
     {
       from: 'Outlets Rack 1',
@@ -134,20 +258,22 @@ export default function BasicSchematic() {
       group: 'Rack 2'
     },
   ];
+export default function BasicSchematic() {
+  const diagramRef = useRef<HTMLDivElement>(null);
   function assignCurvinessToLinks(links: any[]) {
     const linkMap = new Map<string, number>();
     links.forEach(link => {
       const key = `${link.from}->${link.to}`;
       const revKey = `${link.to}->${link.from}`;
-  
+
       const count = linkMap.get(key) || 0;
       link.curviness = 50 * (count + 1); // Increased curviness value
-  
+
       linkMap.set(key, count + 1);
       linkMap.set(revKey, count + 1);
     });
   }
-  
+
   useEffect(() => {
     const $ = go.GraphObject.make;
 
@@ -155,10 +281,7 @@ export default function BasicSchematic() {
 
     const diagram: go.Diagram = $(go.Diagram, diagramRef.current, {
       'undoManager.isEnabled': true,
-      layout: $(go.Layout),  // Use basic Layout instead of undefined
-      initialContentAlignment: go.Spot.Center,
-      allowZoom: true,
-      allowMove: true,
+      layout: $(go.Layout)
     });
 
     // Use the default template for other nodes
@@ -266,11 +389,16 @@ export default function BasicSchematic() {
       go.Group,
       'Vertical',
       {
-        layout: $(go.GridLayout, { wrappingColumn: 1, spacing: new go.Size(0, 20) }),
+        layout: $(go.GridLayout, {
+          wrappingColumn: 1,
+          spacing: new go.Size(20, 0)
+        }),
         isSubGraphExpanded: true,
         selectable: true,
         computesBoundsAfterDrag: true,
         handlesDragDropForMembers: true,
+        minSize: new go.Size(400, NaN),  // Set minimum width to 400
+        maxSize: new go.Size(NaN, NaN),  // Allow unlimited height
       },
       new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
       $(go.TextBlock, { font: 'bold 12pt sans-serif', margin: 4 }, new go.Binding('text', 'key')),
@@ -298,8 +426,8 @@ export default function BasicSchematic() {
         toShortLength: 4,    // Spacing from target node
         layerName: "Background"  // Draw links in background
       },
-      $(go.Shape, { 
-        stroke: "#357", 
+      $(go.Shape, {
+        stroke: "#357",
         strokeWidth: 2,
         segmentOffset: new go.Point(10, 10)  // Offset parallel links vertically
       }),
@@ -312,8 +440,8 @@ export default function BasicSchematic() {
         new go.Binding("text", "label")
       )
     );
-    
-    
+
+
     // Inner Outlet node template
     diagram.nodeTemplateMap.add("InnerOutlet",
       $(go.Node, "Auto",
@@ -484,135 +612,31 @@ export default function BasicSchematic() {
       )
     );
     assignCurvinessToLinks(linkDataArray);
-    
-    // Model with sample nodes
+
+    // Assume nodeDataArray is fetched from backend
+    // const rackGroups = nodeDataArray.filter(n => n.isGroup && n.key.includes('Rack'));
+
+    // Sort racks descending (Rack 2, Rack 1, ...)
+    // rackGroups.sort((a, b) => {
+    //   const numA = parseInt(a.key.split(' ')[1]);
+    //   const numB = parseInt(b.key.split(' ')[1]);
+    //   return numB - numA;
+    // });
+
+    // // Assign locations automatically
+    // rackGroups.forEach((rack: any, idx: number) => {
+    //   rack.loc = `${idx * 400} 0`; // 400px apart horizontally
+    // });
+
+    // // Merge back with non-group nodes
+    // const sortedNodeDataArray = [
+    //   ...rackGroups,
+    //   ...nodeDataArray.filter(n => !n.isGroup),
+    // ];
+
+    // Use the sorted array in your model
     diagram.model = new go.GraphLinksModel(
-      [
-        { key: 'Rack 1', isGroup: true, label: "Rack 1" },  // Position Rack 1 to the right of Rack 2
-        {
-          key: 'Outlets Rack 1', label: "Outlets", group: 'Rack 1', text: 'Outlets', isBold: true, category: "InnerOutlet", ports: [
-            { portId: "11", label: "11", spot: go.Spot.Left, fromLinkable: true, toLinkable: true },
-            { portId: "12", label: "12", spot: go.Spot.Left, fromLinkable: true, toLinkable: true },
-            { portId: "13", label: "13", spot: go.Spot.Right, fromLinkable: true, toLinkable: true },
-          ]
-        },
-        {
-          key: 'HV-Pwr in',
-          group: 'Rack 1',
-          text: 'HV',
-          ports: [
-            { portId: "Pwr in", label: "Pwr in", spot: go.Spot.Left },
-          ], label: "HV"
-        },
-        {
-          key: 'TMP2-Pwr in',
-          group: 'Rack 1',
-          text: 'TMP2',
-          ports: [
-            { portId: "Pwr in", label: "Pwr in", spot: go.Spot.Left },
-          ], label: "TMP2"
-        },
-        {
-          key: 'TMP1-Pwr in',
-          group: 'Rack 1',
-          text: 'TMP1',
-          ports: [
-            { portId: "Pwr in", label: "Pwr in", spot: go.Spot.Left },
-          ], label: "TMP1"
-        },
-        {
-          key: 'TMP3-Pwr in',
-          group: 'Rack 1',
-          text: 'TMP3',
-          ports: [
-            { portId: "Pwr in", label: "Pwr in", spot: go.Spot.Left },
-          ], label: "TMP3"
-        },
-        {
-          key: 'RF1-Pwr in',
-          group: 'Rack 1',
-          text: 'RF1',
-          ports: [
-            { portId: "Pwr in", label: "Pwr in", spot: go.Spot.Left },
-          ], label: "RF1"
-        },
-        {
-          key: 'PDU',
-          group: 'Rack 1',
-          text: 'PDU',
-          category: "PDU",
-          ports: PDU_PORTS[0].ports
-        },
-        { key: 'Rack 2', isGroup: true, label: "Rack 2" },
-        {
-          key: 'Outlets Rack 2',
-          label: "Outlets",
-          group: 'Rack 2',
-          text: 'Outlets',
-          isBold: true,
-          category: "InnerOutlet",
-          ports: [
-            { portId: "21", label: "21", spot: go.Spot.Left, key: "21", fromLinkable: true, toLinkable: true, },
-            { portId: "22", label: "22", spot: go.Spot.Left, key: "22", fromLinkable: true, toLinkable: true, },
-            { portId: "23", label: "23", spot: go.Spot.Right, key: "23", fromLinkable: true, toLinkable: true, },
-          ]
-        },
-        {
-          key: 'Pwr in-Network Switch',
-          group: 'Rack 2',
-          text: 'Network Switch',
-          ports: [
-            { portId: "Pwr in", label: "Pwr in", spot: go.Spot.Left, key: "Pwr in", fromLinkable: true, toLinkable: true, },
-          ], label: "Network Switch"
-        },
-        {
-          key: 'ES5-ES4 T21, T26',
-          group: 'Rack 2',
-          text: 'ES5 - cRIO',
-          isBold: true,
-          isItalic: true,
-          ports: [
-            { portId: "ES5 T31, T34", label: "ES5 T31, T34", spot: go.Spot.Left },
-          ], label: "ES5 - cRIO"
-        },
-        {
-          key: 'ES4-ES3 T21, T26',
-          group: 'Rack 2',
-          text: 'ES4 – Digital 2',
-          isBold: true, isItalic: true,
-          ports: [
-            { portId: "ES4 T21, T26", label: "ES4 T21, T26", spot: go.Spot.Left },
-          ], label: "ES4 - Digital 2"
-        },
-        {
-          key: 'ES3-ES2 T21, T26',
-          group: 'Rack 2',
-          text: 'ES3 – Digital 1',
-          isBold: true, isItalic: true,
-          ports: [
-            { portId: "ES3 T21, T26", label: "ES3 T21, T26", spot: go.Spot.Left },
-          ], label: "ES3 - Digital 1"
-        },
-        {
-          key: 'ES2-ES1 T21, T26',
-          group: 'Rack 2',
-          text: 'ES2 – n/c',
-          isBold: true, isItalic: true,
-          ports: [
-            { portId: "", label: "", spot: go.Spot.Left },
-          ], label: "ES2 - n/c"
-        },
-        {
-          key: 'ES1-ES1 T21, T26',
-          group: 'Rack 2',
-          text: 'ES1 - Interlocks',
-          isBold: true, isItalic: true,
-          ports: [
-            { portId: "ES1 T21, T26", label: "ES1 T21, T26", spot: go.Spot.Left },
-          ], label: "ES1 - Interlocks"
-        },
-        { key: 'PDU', group: 'Rack 2', text: 'PDU', category: "PDU", ports: PDU_PORTS[1].ports },
-      ],
+      nodeDataArray,
       linkDataArray
     );
 
