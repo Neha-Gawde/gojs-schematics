@@ -9,53 +9,53 @@ const PDU_PORTS = [
     rack: "Rack 1",
     ports: [
       // Left ports
-      { id: "X2", label: "X2", spot: go.Spot.Left },
-      { id: "X3", label: "X3", spot: go.Spot.Left },
-      { id: "X4", label: "X4", spot: go.Spot.Left },
-      { id: "X6", label: "X6", spot: go.Spot.Left },
-      { id: "X7", label: "X7", spot: go.Spot.Left },
-      { id: "X8", label: "X8", spot: go.Spot.Left },
-      { id: "X9", label: "X9", spot: go.Spot.Left },
+      { portId: "X2", label: "X2", spot: go.Spot.Left },
+      { portId: "X3", label: "X3", spot: go.Spot.Left },
+      { portId: "X4", label: "X4", spot: go.Spot.Left },
+      { portId: "X6", label: "X6", spot: go.Spot.Left },
+      { portId: "X7", label: "X7", spot: go.Spot.Left },
+      { portId: "X8", label: "X8", spot: go.Spot.Left },
+      { portId: "X9", label: "X9", spot: go.Spot.Left },
       // Right ports
-      { id: "X5", label: "X5", spot: go.Spot.Right },
-      { id: "X1", label: "X1", spot: go.Spot.Right },
+      { portId: "X5", label: "X5", spot: go.Spot.Right },
+      { portId: "X1", label: "X1", spot: go.Spot.Right },
     ]
   },
   {
     rack: "Rack 2",
     ports: [
       {
-        id: "X5",
+        portId: "X5",
         label: "X5",
         spot: go.Spot.Left
       },
       {
-        id: "X6",
+        portId: "X6",
         label: "X6",
         spot: go.Spot.Left
       },
       {
-        id: "X7",
+        portId: "X7",
         label: "X7",
         spot: go.Spot.Left
       },
       {
-        id: "X8",
+        portId: "X8",
         label: "X8",
         spot: go.Spot.Left
       },
       {
-        id: "X2",
+        portId: "X2",
         label: "X2",
         spot: go.Spot.Left
       },
       {
-        id: "X3",
+        portId: "X3",
         label: "X3",
         spot: go.Spot.Right
       },
       {
-        id: "X1",
+        portId: "X1",
         label: "X1",
         spot: go.Spot.Right
       },
@@ -201,20 +201,19 @@ export default function BasicSchematic() {
     // Link template
     diagram.linkTemplate = $(
       go.Link,
-      { routing: go.Link.AvoidsNodes, curve: go.Link.JumpOver, corner: 4 },
-      new go.Binding("points").makeTwoWay(),
-      new go.Binding("stroke", "color"),
-      new go.Binding("fromPort", "fromPort"),
-      new go.Binding("toPort", "toPort"),
-      $(go.Shape, { strokeWidth: 2 }, new go.Binding("stroke", "color")),
-      $(go.Shape, { toArrow: "OpenTriangle", stroke: null }, new go.Binding("stroke", "color")),
-      $(go.TextBlock,
-        { segmentOffset: new go.Point(0, -10), font: "10pt sans-serif", stroke: "#333" },
-        new go.Binding("text", "label"),
-        new go.Binding("visible", "visible")
-      )
+      {
+        routing: go.Link.AvoidsNodes,
+        curve: go.Link.JumpOver,
+        corner: 10,
+        fromEndSegmentLength: 40,
+        toEndSegmentLength: 40,
+        curviness: 20
+      },
+      $(go.Shape, { stroke: "#357", strokeWidth: 2 }),
+      $(go.Shape, { toArrow: "Standard", fill: "#357" }),
+      $(go.TextBlock, new go.Binding("text", "label"), { segmentOffset: new go.Point(0, -10) })
     );
-
+    // Inner Outlet node template
     diagram.nodeTemplateMap.add("InnerOutlet",
       $(go.Node, "Auto",
         {
@@ -387,7 +386,7 @@ export default function BasicSchematic() {
     // Model with sample nodes
     diagram.model = new go.GraphLinksModel(
       [
-        { key: 'Rack 1', isGroup: true, loc: '300 0', label: "Rack 1" },  // Position Rack 1 to the right of Rack 2
+        { key: 'Rack 1', isGroup: true, label: "Rack 1" },  // Position Rack 1 to the right of Rack 2
         {
           key: 'Outlets Rack 1', label: "Outlets", group: 'Rack 1', text: 'Outlets', isBold: true, category: "InnerOutlet", ports: [
             { portId: "11", label: "11", spot: go.Spot.Left, fromLinkable: true, toLinkable: true },
@@ -442,7 +441,7 @@ export default function BasicSchematic() {
           category: "PDU",
           ports: PDU_PORTS[0].ports
         },
-        { key: 'Rack 2', isGroup: true, loc: '0 0', label: "Rack 2" },
+        { key: 'Rack 2', isGroup: true, label: "Rack 2" },
         {
           key: 'Outlets Rack 2',
           label: "Outlets",
@@ -514,6 +513,33 @@ export default function BasicSchematic() {
       ],
       [
         // Rack 1 connections
+        {
+          from: 'Outlets Rack 1',
+          to: 'PDU',
+          label: 'ETB-092',
+          color: '#1b8ea6',
+          fromPort: '13',
+          toPort: 'X5',
+          group: 'Rack 1'
+        },
+        {
+          from: 'HV-Pwr in',
+          to: 'PDU',
+          label: 'ETB-092',
+          color: '#1b8ea6',
+          fromPort: 'Pwr in',
+          toPort: 'X9',
+          group: 'Rack 1'
+        },
+        {
+          from: 'TMP2-Pwr in',
+          to: 'PDU',
+          label: 'ETB-092',
+          color: '#1b8ea6',
+          fromPort: 'Pwr in',
+          toPort: 'X7',
+          group: 'Rack 1'
+        },
         // Rack 2 connections
         // ... existing code ...
         // ... existing code ...
@@ -526,15 +552,6 @@ export default function BasicSchematic() {
           toPort: 'Pwr in',
           group: 'Rack 2'
         },
-        {
-          from: 'Outlets Rack 1',
-          to: 'TMP2-Pwr in',
-          label: 'ETB-082',
-          color: '#1b8ea6',
-          fromPort: '11',
-          toPort: 'Pwr in',
-          group: 'Rack 1'
-        }
       ]
     );
 
