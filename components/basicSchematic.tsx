@@ -519,6 +519,43 @@ export default function BasicSchematic() {
         },
         new go.Binding("text", "text")
       ),
+      // Add BOTTOM ports panel
+      $(go.Panel, "Table",
+        {
+          alignment: go.Spot.Bottom,
+          alignmentFocus: go.Spot.Bottom,
+          margin: new go.Margin(0, 0, 0, 0),
+          itemTemplate: $(go.Panel, "Vertical",
+            new go.Binding("column", "column"),
+            $(go.TextBlock,
+              {
+                margin: new go.Margin(0, 0, 4, 0),
+                font: "10pt sans-serif",
+                alignment: go.Spot.Center
+              },
+              new go.Binding("text", "label"),
+              new go.Binding("visible", "spot", s => s === go.Spot.Bottom)
+            ),
+            $(go.Shape, "Circle",
+              {
+                fromSpot: go.Spot.Bottom,
+                toSpot: go.Spot.Bottom,
+                fill: "black",
+                stroke: null,
+                desiredSize: new go.Size(8, 8),
+                fromLinkable: true,
+                toLinkable: true
+              },
+              new go.Binding("portId", "portId"),
+              new go.Binding("visible", "spot", s => s === go.Spot.Bottom)
+            )
+          )
+        },
+        new go.Binding("itemArray", "ports", ports =>
+          ports.filter((p: any) => p.spot === go.Spot.Bottom)
+            .map((p: any, idx: number) => ({ ...p, column: idx }))
+        )
+      ),
       // LEFT ports (dynamically from ports array)
       $(go.Panel, "Table",
         {
