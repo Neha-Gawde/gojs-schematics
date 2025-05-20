@@ -107,6 +107,11 @@ interface NodeData {
 }
 
 const nodeDataArray = [
+  { key: 'APC', isGroup: false, label: "APC" , text: "APC",
+    ports: [
+      { portId: "Pwr", label: "Pwr", spot: go.Spot.Right },
+    ]
+  },
   { key: 'Rack 4', isGroup: true, label: "Rack 4" },
   { key: 'Rack 3', isGroup: true, label: "Rack 3" },
   { key: 'Rack 2', isGroup: true, label: "Rack 2" },
@@ -461,6 +466,15 @@ const linkDataArray = [
     fromPort: '22',  // This specifies which port on the node to use
     toPort: 'Pwr in',
     group: 'Rack 2'
+  },
+  {
+    from: 'APC',  // Changed to use the node key instead of port ID
+    to: 'Analog',
+    label: 'ETB-072',
+    color: '#1b8ea6',
+    fromPort: 'Pwr',  // This specifies which port on the node to use
+    toPort: 'X14',
+    // group: 'Rack 2'
   },
 ];
 export default function BasicSchematic() {
