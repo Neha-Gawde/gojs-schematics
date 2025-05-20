@@ -61,8 +61,54 @@ const PDU_PORTS = [
       },
     ]
   },
+  {
+    rack: "Rack 3",
+    ports: [
+      { portId: "X1", label: "X1", spot: go.Spot.Right },
+      { portId: "X2", label: "X2", spot: go.Spot.Right },
+      { portId: "X3", label: "X3", spot: go.Spot.Right },
+      { portId: "X5", label: "X5", spot: go.Spot.Left },
+      { portId: "X6", label: "X6", spot: go.Spot.Left },
+      { portId: "X7", label: "X7", spot: go.Spot.Left },
+      { portId: "X8", label: "X8", spot: go.Spot.Left },
+      { portId: "X9", label: "X9", spot: go.Spot.Left },
+    ]
+  },
+  {
+    rack: "Rack 4",
+    ports: [
+      { portId: "X1", label: "X1", spot: go.Spot.Right },
+      { portId: "X3", label: "X3", spot: go.Spot.Left },
+      { portId: "X2", label: "X2", spot: go.Spot.Left },
+      { portId: "X4", label: "X4", spot: go.Spot.Left },
+      { portId: "X5", label: "X5", spot: go.Spot.Left },
+    ]
+  }
 ]
+
+interface NodeData {
+  key: string;
+  group?: string;
+  text?: string;
+  position?: string;
+  ports?: Array<{
+    portId: string;
+    label: string;
+    spot: go.Spot;
+  }>;
+  label?: string;
+  isGroup?: boolean;
+  isBold?: boolean;
+  category?: string;
+  isItalic?: boolean;
+  numberOfRows?: number;
+  row?: number;  // Added for position tracking
+  column?: number;  // Added for position tracking
+}
+
 const nodeDataArray = [
+  { key: 'Rack 4', isGroup: true, label: "Rack 4" },
+  { key: 'Rack 3', isGroup: true, label: "Rack 3" },
   { key: 'Rack 2', isGroup: true, label: "Rack 2" },
   { key: 'Rack 1', isGroup: true, label: "Rack 1" },
   {
@@ -187,77 +233,236 @@ const nodeDataArray = [
     ], label: "ES1 - Interlocks"
   },
   { key: 'PDU', group: 'Rack 2', text: 'PDU', category: "PDU", ports: PDU_PORTS[1].ports },
+  {
+    key: 'Outlets Rack 31', label: "Outlets 1", group: 'Rack 3', text: 'Outlets 1', isBold: true, category: "InnerOutlet", ports: [
+      { portId: "311", label: "311", spot: go.Spot.Left, fromLinkable: true, toLinkable: true },
+      { portId: "312", label: "312", spot: go.Spot.Left, fromLinkable: true, toLinkable: true },
+      { portId: "313", label: "313", spot: go.Spot.Right, fromLinkable: true, toLinkable: true },
+    ]
+  },
+  {
+    key: 'Outlets Rack 32', label: "Outlets 2", group: 'Rack 3', text: 'Outlets 2', isBold: true, category: "InnerOutlet", ports: [
+      { portId: "321", label: "321", spot: go.Spot.Left, fromLinkable: true, toLinkable: true },
+      { portId: "322", label: "322", spot: go.Spot.Left, fromLinkable: true, toLinkable: true },
+      { portId: "323", label: "323", spot: go.Spot.Right, fromLinkable: true, toLinkable: true },
+    ]
+  },
+  {
+    key: 'ES3',
+    group: 'Rack 3',
+    text: 'ES3',
+    ports: [
+      { portId: "T1/T2", label: "T1/T2", spot: go.Spot.Left },
+      { portId: "T5/T7", label: "T5/T7", spot: go.Spot.Left },
+    ], 
+    label: "ES3"
+  },
+  {
+    key: 'ES4',
+    group: 'Rack 3',
+    text: 'ES4',
+    ports: [
+      { portId: "T1/T3", label: "T1/T3", spot: go.Spot.Left },
+    ], 
+    label: "ES4"
+  },
+  { key: 'PDU', group: 'Rack 3', text: 'PDU', category: "PDU", ports: PDU_PORTS[2].ports },
+  {
+    key: 'Outlets Rack 41', label: "Outlets", group: 'Rack 4', text: 'Outlets', isBold: true, category: "InnerOutlet", ports: [
+      { portId: "411", label: "411", spot: go.Spot.Right, fromLinkable: true, toLinkable: true },
+      { portId: "412", label: "412", spot: go.Spot.Right, fromLinkable: true, toLinkable: true },
+      { portId: "413", label: "413", spot: go.Spot.Right, fromLinkable: true, toLinkable: true },
+    ]
+  },
+  {
+    key: 'Z-Lift',
+    group: 'Rack 4',
+    text: 'Z-Lift',
+    ports: [
+      { portId: "Pwr in", label: "Pwr in", spot: go.Spot.Right },
+    ], 
+    label: "Z-Lift"
+  },
+  {
+    key: 'Analog',
+    group: 'Rack 4',
+    text: 'Analog Box',
+    ports: [
+      { portId: "X14", label: "X14", spot: go.Spot.Left },
+      { portId: "X1", label: "X1", spot: go.Spot.Right },
+    ], 
+    label: "Analog"
+  },
+  {
+    key: 'Outlets Rack 42', label: "Outlets", group: 'Rack 4', text: 'Outlets', isBold: true, category: "InnerOutlet", ports: [
+      { portId: "421", label: "421", spot: go.Spot.Right, fromLinkable: true, toLinkable: true },
+      { portId: "422", label: "422", spot: go.Spot.Right, fromLinkable: true, toLinkable: true },
+    ]
+  },
+  {
+    key: 'ES4',
+    group: 'Rack 3',
+    text: 'ES4',
+    ports: [
+      { portId: "T1/T3", label: "T1/T3", spot: go.Spot.Left },
+    ], 
+    label: "ES4"
+  },
+  {
+    key: 'FCS Rack',
+    group: 'Rack 4',
+    text: 'FCS Rack',
+    ports: [
+      { portId: "X2", label: "X2", spot: go.Spot.Left , voltage: "+/-15V"},
+      { portId: "X1", label: "X1", spot: go.Spot.Left , voltage: "+24V"},
+      
+    ], 
+    label: "FCS Rack"
+  },
+  {
+    key: 'ES1',
+    group: 'Rack 4',
+    text: 'ES1-cRIO',
+    ports: [
+      { portId: "Pwr in", label: "Pwr in", spot: go.Spot.Left },
+    ], 
+    label: "ES1-cRIO"
+  },
+  {
+    key: 'ES2-InterLocks',
+    group: 'Rack 4',
+    text: 'ES2 – Interlocks',
+    isGroup: true,
+    category: "Interlocks",
+    label: "ES2 – Interlocks",
+    numberOfRows: 4,
+    numberOfColumns: 2,
+
+  },
+  {
+    key: 'T10/T11',
+    group: 'ES2-InterLocks',
+    text: 'T10/T11',
+    position: "1st row 1st column",
+    ports: [
+      { portId: "1", label: "1", spot: go.Spot.Left },
+      { portId: "2", label: "2", spot: go.Spot.Bottom },
+      { portId: "3", label: "3", spot: go.Spot.Bottom },
+    ], 
+    label: "T10/T11"
+  },
+  {
+    key: 'VALVES 1',
+    group: 'ES2-InterLocks',
+    text: 'VALVES 1',
+    position: "2nd row 2nd column",
+    ports: [
+      { portId: "X5", label: "X5", spot: go.Spot.Left },
+    ], 
+    label: "VALVES 1"
+  },
+  {
+    key: 'VALVES 2',
+    group: 'ES2-InterLocks',
+    text: 'VALVES 2',
+    position: "3rd row 2nd column",
+    ports: [
+      { portId: "X5", label: "X5", spot: go.Spot.Left },
+    ], 
+    label: "VALVES 2"
+  },
+  {
+    key: 'T35/T40',
+    group: 'ES2-InterLocks',
+    text: 'T35/T40',
+    position: "4th row 2nd column",
+    ports: [
+      { portId: "1", label: "1", spot: go.Spot.Left },
+    ], 
+    label: "T35/T40"
+  },
+  { key: 'PDU', group: 'Rack 4', text: 'ES1 - PDU', category: "PDU", ports: PDU_PORTS[3].ports },
 ];
 
-  const linkDataArray = [
-    // Rack 1 connections
-    {
-      from: 'Outlets Rack 1',
-      to: 'PDU',
-      label: 'ETB-092',
-      color: '#1b8ea6',
-      fromPort: '13',
-      toPort: 'X5',
-      group: 'Rack 1'
-    },
-    {
-      from: 'HV-Pwr in',
-      to: 'PDU',
-      label: 'ETB-094',
-      color: '#1b8ea6',
-      fromPort: 'Pwr in',
-      toPort: 'X9',
-      group: 'Rack 1'
-    },
-    {
-      from: 'TMP2-Pwr in',
-      to: 'PDU',
-      label: 'ETB-093',
-      color: '#1b8ea6',
-      fromPort: 'Pwr in',
-      toPort: 'X7',
-      group: 'Rack 1'
-    },
-    {
-      from: 'TMP1-Pwr in',
-      to: 'PDU',
-      label: 'ETB-091',
-      color: '#1b8ea6',
-      fromPort: 'Pwr in',
-      toPort: 'X4',
-      group: 'Rack 1'
-    },
-    {
-      from: 'TMP3-Pwr in',
-      to: 'PDU',
-      label: 'ETB-221',
-      color: '#1b8ea6',
-      fromPort: 'Pwr in',
-      toPort: 'X3',
-      group: 'Rack 1'
-    },
-    {
-      from: 'RF1-Pwr in',
-      to: 'PDU',
-      label: 'ETB-089',
-      color: '#1b8ea6',
-      fromPort: 'Pwr in',
-      toPort: 'X2',
-      group: 'Rack 1'
-    },
-    // Rack 2 connections
-    // ... existing code ...
-    // ... existing code ...
-    {
-      from: 'Outlets Rack 2',  // Changed to use the node key instead of port ID
-      to: 'Pwr in-Network Switch',
-      label: 'ETB-082',
-      color: '#1b8ea6',
-      fromPort: '22',  // This specifies which port on the node to use
-      toPort: 'Pwr in',
-      group: 'Rack 2'
-    },
-  ];
+// Preprocess Interlocks children to extract row/column from position
+nodeDataArray.forEach((node: NodeData) => {
+  if (node.group === 'ES2-InterLocks' && typeof node.position === 'string') {
+    const rowMatch = node.position.match(/(\d+)[a-z]{2} row/i);
+    const colMatch = node.position.match(/(\d+)[a-z]{2} column/i);
+    if (rowMatch) node.row = parseInt(rowMatch[1], 10) - 1;
+    if (colMatch) node.column = parseInt(colMatch[1], 10) - 1;
+  }
+});
+
+const linkDataArray = [
+  // Rack 1 connections
+  {
+    from: 'Outlets Rack 1',
+    to: 'PDU',
+    label: 'ETB-092',
+    color: '#1b8ea6',
+    fromPort: '13',
+    toPort: 'X5',
+    group: 'Rack 1'
+  },
+  {
+    from: 'HV-Pwr in',
+    to: 'PDU',
+    label: 'ETB-094',
+    color: '#1b8ea6',
+    fromPort: 'Pwr in',
+    toPort: 'X9',
+    group: 'Rack 1'
+  },
+  {
+    from: 'TMP2-Pwr in',
+    to: 'PDU',
+    label: 'ETB-093',
+    color: '#1b8ea6',
+    fromPort: 'Pwr in',
+    toPort: 'X7',
+    group: 'Rack 1'
+  },
+  {
+    from: 'TMP1-Pwr in',
+    to: 'PDU',
+    label: 'ETB-091',
+    color: '#1b8ea6',
+    fromPort: 'Pwr in',
+    toPort: 'X4',
+    group: 'Rack 1'
+  },
+  {
+    from: 'TMP3-Pwr in',
+    to: 'PDU',
+    label: 'ETB-221',
+    color: '#1b8ea6',
+    fromPort: 'Pwr in',
+    toPort: 'X3',
+    group: 'Rack 1'
+  },
+  {
+    from: 'RF1-Pwr in',
+    to: 'PDU',
+    label: 'ETB-089',
+    color: '#1b8ea6',
+    fromPort: 'Pwr in',
+    toPort: 'X2',
+    group: 'Rack 1'
+  },
+  // Rack 2 connections
+  // ... existing code ...
+  // ... existing code ...
+  {
+    from: 'Outlets Rack 2',  // Changed to use the node key instead of port ID
+    to: 'Pwr in-Network Switch',
+    label: 'ETB-082',
+    color: '#1b8ea6',
+    fromPort: '22',  // This specifies which port on the node to use
+    toPort: 'Pwr in',
+    group: 'Rack 2'
+  },
+];
 export default function BasicSchematic() {
   const diagramRef = useRef<HTMLDivElement>(null);
   function assignCurvinessToLinks(links: any[]) {
@@ -281,7 +486,14 @@ export default function BasicSchematic() {
 
     const diagram: go.Diagram = $(go.Diagram, diagramRef.current, {
       'undoManager.isEnabled': true,
-      layout: $(go.Layout)
+      layout: $(go.GridLayout, {
+        wrappingColumn: 5,
+        alignment: go.GridLayout.Position,
+        spacing: new go.Size(10, 0)
+      }),
+      initialContentAlignment: go.Spot.Center,
+      allowZoom: true,
+      allowMove: true,
     });
 
     // Use the default template for other nodes
@@ -391,7 +603,7 @@ export default function BasicSchematic() {
       {
         layout: $(go.GridLayout, {
           wrappingColumn: 1,
-          spacing: new go.Size(20, 0)
+          spacing: new go.Size(20, 0),
         }),
         isSubGraphExpanded: true,
         selectable: true,
@@ -611,30 +823,49 @@ export default function BasicSchematic() {
         )
       )
     );
+    diagram.groupTemplateMap.add("Interlocks",
+      $(go.Group, "Vertical",
+        {
+          isSubGraphExpanded: true,
+          selectable: true,
+          computesBoundsAfterDrag: true,
+          handlesDragDropForMembers: true,
+          minSize: new go.Size(200, NaN),
+          maxSize: new go.Size(NaN, NaN),
+          margin: 10
+        },
+        // Dynamically set layout based on "layout" or "numberOfRows"
+        new go.Binding("layout", "", function(data) {
+          // Prefer layout string like "2X4" or "4x4"
+          if (typeof data.layout === "string" && data.layout.match(/^\d+[xX]\d+$/)) {
+            const [cols] = data.layout.split(/[xX]/).map(Number);
+            return $(go.GridLayout, {
+              wrappingColumn: cols,
+              spacing: new go.Size(10, 10)
+            });
+          }
+          // Fallback to numberOfColumns if present
+          if (typeof data.numberOfColumns === "number" && data.numberOfColumns > 0) {
+            return $(go.GridLayout, {
+              wrappingColumn: data.numberOfColumns,
+              spacing: new go.Size(10, 10)
+            });
+          }
+
+          // Default layout
+          return $(go.GridLayout, {
+            wrappingColumn: 1,
+            spacing: new go.Size(10, 10)
+          });
+        }),
+        $(go.TextBlock, { font: 'italic bold 12pt sans-serif', margin: 4 }, new go.Binding('text', 'text')),
+        $(go.Panel, 'Auto',
+          $(go.Shape, { fill: null, stroke: '#999', strokeWidth: 1, strokeDashArray: [4, 2] }),
+          $(go.Placeholder, { padding: 20 })
+        )
+      )
+    );
     assignCurvinessToLinks(linkDataArray);
-
-    // Assume nodeDataArray is fetched from backend
-    // const rackGroups = nodeDataArray.filter(n => n.isGroup && n.key.includes('Rack'));
-
-    // Sort racks descending (Rack 2, Rack 1, ...)
-    // rackGroups.sort((a, b) => {
-    //   const numA = parseInt(a.key.split(' ')[1]);
-    //   const numB = parseInt(b.key.split(' ')[1]);
-    //   return numB - numA;
-    // });
-
-    // // Assign locations automatically
-    // rackGroups.forEach((rack: any, idx: number) => {
-    //   rack.loc = `${idx * 400} 0`; // 400px apart horizontally
-    // });
-
-    // // Merge back with non-group nodes
-    // const sortedNodeDataArray = [
-    //   ...rackGroups,
-    //   ...nodeDataArray.filter(n => !n.isGroup),
-    // ];
-
-    // Use the sorted array in your model
     diagram.model = new go.GraphLinksModel(
       nodeDataArray,
       linkDataArray
