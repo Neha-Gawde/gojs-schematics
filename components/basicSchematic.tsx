@@ -3,6 +3,7 @@
 
 import * as go from 'gojs';
 import { useEffect, useRef } from 'react';
+import { AvoidsLinksRouter } from '../lib/gojs/AvoidLinkRoute';
 
 const PDU_PORTS = [
   {
@@ -104,18 +105,64 @@ interface NodeData {
   numberOfRows?: number;
   row?: number;  // Added for position tracking
   column?: number;  // Added for position tracking
+  loc?: string;  // Added for position tracking
+  layer?: number;  // Add this property
+  layerOrder?: number;  // Add this property
 }
 
 const nodeDataArray = [
-  { key: 'APC', isGroup: false, label: "APC" , text: "APC",
+  {
+    key: 'APC',
+    isGroup: false,
+    label: "APC",
+    text: "APC",
+    category: "APC",
+    loc: "0 0",  // Set initial location
+    layer: 0,  // First layer
+    layerOrder: 0,
     ports: [
       { portId: "Pwr", label: "Pwr", spot: go.Spot.Right },
     ]
   },
-  { key: 'Rack 4', isGroup: true, label: "Rack 4" },
-  { key: 'Rack 3', isGroup: true, label: "Rack 3" },
-  { key: 'Rack 2', isGroup: true, label: "Rack 2" },
-  { key: 'Rack 1', isGroup: true, label: "Rack 1" },
+  { key: 'Rack 4', isGroup: true, label: "Rack 4", layer: 0, layerOrder: 1 },
+  { key: 'Rack 3', isGroup: true, label: "Rack 3", layer: 0, layerOrder: 2 },
+  { key: 'Rack 2', isGroup: true, label: "Rack 2", layer: 0, layerOrder: 3 },
+  { key: 'Rack 1', isGroup: true, label: "Rack 1", layer: 0, layerOrder: 4 },
+  {
+    key: 'GAS Box 1', isGroup: false, label: "GASBox", layer: 1, layerOrder: 0, category: "normalParent",
+    ports: [
+      { portId: "1", label: "1", spot: go.Spot.Left },
+      { portId: "2", label: "P406", spot: go.Spot.Right },
+    ]
+  },
+  {
+    key: 'OuterOutlet1', isGroup: false, label: "Outlet", description: "L5-20R", layer: 1, layerOrder: 0, category: "normalParent",
+    ports: [
+      { portId: "1", label: "1", spot: go.Spot.Left },
+      { portId: "2", label: "2", spot: go.Spot.Right },
+    ]
+  },
+  {
+    key: 'OuterOutlet2', isGroup: false, label: "Outlet", description: "L5-20R", layer: 1, layerOrder: 0, category: "normalParent",
+    ports: [
+      { portId: "1", label: "1", spot: go.Spot.Left },
+      { portId: "2", label: "2", spot: go.Spot.Right },
+    ]
+  },
+  {
+    key: 'OuterOutlet3', isGroup: false, label: "Outlet", description: "L5-20R", layer: 1, layerOrder: 0, category: "normalParent",
+    ports: [
+      { portId: "1", label: "1", spot: go.Spot.Left },
+      { portId: "2", label: "2", spot: go.Spot.Right },
+    ]
+  },
+  {
+    key: 'OuterOutlet4', isGroup: false, label: "Outlet", description: "L5-20R", layer: 1, layerOrder: 0, category: "normalParent",
+    ports: [
+      { portId: "1", label: "1", spot: go.Spot.Left },
+      { portId: "2", label: "2", spot: go.Spot.Right },
+    ]
+  },
   {
     key: 'Outlets Rack 1', label: "Outlets", group: 'Rack 1', text: 'Outlets', isBold: true, category: "InnerOutlet", ports: [
       { portId: "11", label: "11", spot: go.Spot.Left, fromLinkable: true, toLinkable: true },
@@ -164,7 +211,7 @@ const nodeDataArray = [
     ], label: "RF1"
   },
   {
-    key: 'PDU',
+    key: 'PDU-Rack 1',
     group: 'Rack 1',
     text: 'PDU',
     category: "PDU",
@@ -237,7 +284,7 @@ const nodeDataArray = [
       { portId: "ES1 T21, T26", label: "ES1 T21, T26", spot: go.Spot.Left },
     ], label: "ES1 - Interlocks"
   },
-  { key: 'PDU', group: 'Rack 2', text: 'PDU', category: "PDU", ports: PDU_PORTS[1].ports },
+  { key: 'PDU-Rack 2', group: 'Rack 2', text: 'PDU', category: "PDU", ports: PDU_PORTS[1].ports },
   {
     key: 'Outlets Rack 31', label: "Outlets 1", group: 'Rack 3', text: 'Outlets 1', isBold: true, category: "InnerOutlet", ports: [
       { portId: "311", label: "311", spot: go.Spot.Left, fromLinkable: true, toLinkable: true },
@@ -259,7 +306,7 @@ const nodeDataArray = [
     ports: [
       { portId: "T1/T2", label: "T1/T2", spot: go.Spot.Left },
       { portId: "T5/T7", label: "T5/T7", spot: go.Spot.Left },
-    ], 
+    ],
     label: "ES3"
   },
   {
@@ -268,10 +315,10 @@ const nodeDataArray = [
     text: 'ES4',
     ports: [
       { portId: "T1/T3", label: "T1/T3", spot: go.Spot.Left },
-    ], 
+    ],
     label: "ES4"
   },
-  { key: 'PDU', group: 'Rack 3', text: 'PDU', category: "PDU", ports: PDU_PORTS[2].ports },
+  { key: 'PDU-Rack 3', group: 'Rack 3', text: 'PDU', category: "PDU", ports: PDU_PORTS[2].ports },
   {
     key: 'Outlets Rack 41', label: "Outlets", group: 'Rack 4', text: 'Outlets', isBold: true, category: "InnerOutlet", ports: [
       { portId: "411", label: "411", spot: go.Spot.Right, fromLinkable: true, toLinkable: true },
@@ -285,7 +332,7 @@ const nodeDataArray = [
     text: 'Z-Lift',
     ports: [
       { portId: "Pwr in", label: "Pwr in", spot: go.Spot.Right },
-    ], 
+    ],
     label: "Z-Lift"
   },
   {
@@ -295,7 +342,7 @@ const nodeDataArray = [
     ports: [
       { portId: "X14", label: "X14", spot: go.Spot.Left },
       { portId: "X1", label: "X1", spot: go.Spot.Right },
-    ], 
+    ],
     label: "Analog"
   },
   {
@@ -310,7 +357,7 @@ const nodeDataArray = [
     text: 'ES4',
     ports: [
       { portId: "T1/T3", label: "T1/T3", spot: go.Spot.Left },
-    ], 
+    ],
     label: "ES4"
   },
   {
@@ -318,10 +365,10 @@ const nodeDataArray = [
     group: 'Rack 4',
     text: 'FCS Rack',
     ports: [
-      { portId: "X2", label: "X2", spot: go.Spot.Left , voltage: "+/-15V"},
-      { portId: "X1", label: "X1", spot: go.Spot.Left , voltage: "+24V"},
-      
-    ], 
+      { portId: "X2", label: "X2", spot: go.Spot.Left, voltage: "+/-15V" },
+      { portId: "X1", label: "X1", spot: go.Spot.Left, voltage: "+24V" },
+
+    ],
     label: "FCS Rack"
   },
   {
@@ -330,7 +377,7 @@ const nodeDataArray = [
     text: 'ES1-cRIO',
     ports: [
       { portId: "Pwr in", label: "Pwr in", spot: go.Spot.Left },
-    ], 
+    ],
     label: "ES1-cRIO"
   },
   {
@@ -341,8 +388,7 @@ const nodeDataArray = [
     category: "Interlocks",
     label: "ES2 – Interlocks",
     numberOfRows: 4,
-    numberOfColumns: 2,
-
+    numberOfColumns: 1,
   },
   {
     key: 'T10/T11',
@@ -353,7 +399,7 @@ const nodeDataArray = [
       { portId: "1", label: "1", spot: go.Spot.Left },
       { portId: "2", label: "2", spot: go.Spot.Bottom },
       { portId: "3", label: "3", spot: go.Spot.Bottom },
-    ], 
+    ],
     label: "T10/T11"
   },
   {
@@ -363,7 +409,7 @@ const nodeDataArray = [
     position: "2nd row 2nd column",
     ports: [
       { portId: "X5", label: "X5", spot: go.Spot.Left },
-    ], 
+    ],
     label: "VALVES 1"
   },
   {
@@ -373,7 +419,7 @@ const nodeDataArray = [
     position: "3rd row 2nd column",
     ports: [
       { portId: "X5", label: "X5", spot: go.Spot.Left },
-    ], 
+    ],
     label: "VALVES 2"
   },
   {
@@ -382,11 +428,11 @@ const nodeDataArray = [
     text: 'T35/T40',
     position: "4th row 2nd column",
     ports: [
-      { portId: "1", label: "1", spot: go.Spot.Left },
-    ], 
+      { portId: "1", label: "1", spot: go.Spot.Right },
+    ],
     label: "T35/T40"
   },
-  { key: 'PDU', group: 'Rack 4', text: 'ES1 - PDU', category: "PDU", ports: PDU_PORTS[3].ports },
+  { key: 'PDU-Rack 4', group: 'Rack 4', text: 'ES1 - PDU', category: "PDU", ports: PDU_PORTS[3].ports },
 ];
 
 // Preprocess Interlocks children to extract row/column from position
@@ -403,7 +449,7 @@ const linkDataArray = [
   // Rack 1 connections
   {
     from: 'Outlets Rack 1',
-    to: 'PDU',
+    to: 'PDU-Rack 1',
     label: 'ETB-092',
     color: '#1b8ea6',
     fromPort: '13',
@@ -412,7 +458,7 @@ const linkDataArray = [
   },
   {
     from: 'HV-Pwr in',
-    to: 'PDU',
+    to: 'PDU-Rack 1',
     label: 'ETB-094',
     color: '#1b8ea6',
     fromPort: 'Pwr in',
@@ -421,7 +467,7 @@ const linkDataArray = [
   },
   {
     from: 'TMP2-Pwr in',
-    to: 'PDU',
+    to: 'PDU-Rack 1',
     label: 'ETB-093',
     color: '#1b8ea6',
     fromPort: 'Pwr in',
@@ -430,7 +476,7 @@ const linkDataArray = [
   },
   {
     from: 'TMP1-Pwr in',
-    to: 'PDU',
+    to: 'PDU-Rack 1',
     label: 'ETB-091',
     color: '#1b8ea6',
     fromPort: 'Pwr in',
@@ -439,7 +485,7 @@ const linkDataArray = [
   },
   {
     from: 'TMP3-Pwr in',
-    to: 'PDU',
+    to: 'PDU-Rack 1',
     label: 'ETB-221',
     color: '#1b8ea6',
     fromPort: 'Pwr in',
@@ -448,7 +494,7 @@ const linkDataArray = [
   },
   {
     from: 'RF1-Pwr in',
-    to: 'PDU',
+    to: 'PDU-Rack 1',
     label: 'ETB-089',
     color: '#1b8ea6',
     fromPort: 'Pwr in',
@@ -476,7 +522,73 @@ const linkDataArray = [
     toPort: 'X14',
     // group: 'Rack 2'
   },
+  // Rack 3 connections
+  // Rack 4 connections
+  {
+    from: 'T10/T11',
+    to: 'PDU-Rack 4',
+    label: 'ETB-123',
+    color: 'purple',
+    fromPort: '1',
+    toPort: 'X3',
+    group: 'Rack 4'
+  },
+  {
+    from: 'FCS Rack',
+    to: 'PDU-Rack 4',
+    label: 'ETB-124',
+    color: 'purple',
+    fromPort: 'X1',
+    toPort: 'X4',
+    group: 'Rack 4'
+  },
+  {
+    from: 'ES1',
+    to: 'PDU-Rack 4',
+    label: 'ETB-122',
+    color: 'purple',
+    fromPort: 'Pwr in',
+    toPort: 'X2',
+    group: 'Rack 4'
+  },
+  {
+    from: 'T10/T11',
+    to: 'VALVES 2',
+    label: 'ETB-127',
+    color: 'purple',
+    fromPort: '2',
+    toPort: 'X5',
+    group: 'ES2-InterLocks'
+  },
+  {
+    from: 'T10/T11',
+    to: 'VALVES 1',
+    label: 'ETB-126',
+    color: 'purple',
+    fromPort: '3',
+    toPort: 'X5',
+    group: 'ES2-InterLocks'
+  },
+  {
+    from: 'Outlets Rack 42',
+    to: 'PDU-Rack 4',
+    label: 'ETB-144',
+    color: 'purple',
+    fromPort: '422',
+    toPort: 'X1',
+    group: 'Rack 4'
+  },
+  //other connections
+  {
+    from: 'T35/T40',
+    to: 'GAS Box 1',
+    label: 'ETB-143',
+    color: 'purple',
+    fromPort: '1',
+    toPort: '2',
+  }
 ];
+
 export default function BasicSchematic() {
   const diagramRef = useRef<HTMLDivElement>(null);
   function assignCurvinessToLinks(links: any[]) {
@@ -497,19 +609,37 @@ export default function BasicSchematic() {
     const $ = go.GraphObject.make;
 
     if (!diagramRef.current) return;
-
+    // 1) Create your Diagram
     const diagram: go.Diagram = $(go.Diagram, diagramRef.current, {
       'undoManager.isEnabled': true,
+      // ... existing code ...
+      // layout: $(go.LayeredDigraphLayout, {
+      //   direction: 90,
+      //   layerSpacing: 0,  // Increased spacing between layers
+      //   columnSpacing: 100,
+      //   setsPortSpots: false,
+      //   aggressiveOption: go.LayeredDigraphLayout.AggressiveMore,
+      //   // layeringOption: go.LayeredDigraphLayout.LayerLongestPathSource,
+      //   // initializeOption: go.LayeredDigraphLayout.InitDepthFirstOut,
+      //   // cycleRemoveOption: go.LayeredDigraphLayout.CycleDepthFirst,
+      //   // packOption: go.LayeredDigraphLayout.PackStraighten
+      // }),
+      // ... existing code ...
+      // layout: $(go.Layout ),
       layout: $(go.GridLayout, {
         wrappingColumn: 5,
-        alignment: go.GridLayout.Position,
-        spacing: new go.Size(10, 0)
+        spacing: new go.Size(10, 100),
       }),
       initialContentAlignment: go.Spot.Center,
       allowZoom: true,
       allowMove: true,
     });
 
+    // 2) Register your AvoidsLinksRouter with the Diagram's routers collection
+    diagram.routers.add(new AvoidsLinksRouter({
+      linkSpacing: 10,  // Keep this at 4 for basic spacing
+      // ignoreContainingGroups: true,  // Add this to control spacing between groups
+    }));
     // Use the default template for other nodes
     diagram.nodeTemplate = $(go.Node, "Auto",
       {
@@ -650,24 +780,22 @@ export default function BasicSchematic() {
     // Group template for racks
     diagram.groupTemplate = $(
       go.Group,
-      'Vertical',
+      "Vertical",
       {
         layout: $(go.GridLayout, {
           wrappingColumn: 1,
-          spacing: new go.Size(20, 0),
+          spacing: new go.Size(10, 0),
         }),
         isSubGraphExpanded: true,
         selectable: true,
         computesBoundsAfterDrag: true,
         handlesDragDropForMembers: true,
-        minSize: new go.Size(400, NaN),  // Set minimum width to 400
-        maxSize: new go.Size(NaN, NaN),  // Allow unlimited height
       },
       new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
       $(go.TextBlock, { font: 'bold 12pt sans-serif', margin: 4 }, new go.Binding('text', 'key')),
       $(go.Panel, 'Auto',
         $(go.Shape, { fill: null, stroke: '#999', strokeWidth: 1, strokeDashArray: [4, 2] }),
-        $(go.Placeholder, { padding: 50 })
+        $(go.Placeholder, { padding: 20 })
       )
     );
 
@@ -677,27 +805,33 @@ export default function BasicSchematic() {
       {
         routing: go.Link.AvoidsNodes,
         curve: go.Link.JumpOver,
-        corner: 10,
-        fromEndSegmentLength: 40,
-        toEndSegmentLength: 40,
-        curviness: 100,
+        corner: 20,
+        fromEndSegmentLength: 80,  // Increased from 60
+        toEndSegmentLength: 80,    // Increased from 60
+        curviness: 200,    // Increased from 150
+        segmentOffset: new go.Point(30, 30),  // Increased from 20,20
         relinkableFrom: true,
         relinkableTo: true,
         reshapable: true,
         adjusting: go.Link.End,
-        fromShortLength: 4,  // Spacing from source node
-        toShortLength: 4,    // Spacing from target node
-        layerName: "Background"  // Draw links in background
+        fromShortLength: 4,
+        toShortLength: 4,
+        layerName: "Background"
       },
       $(go.Shape, {
         stroke: "#357",
         strokeWidth: 2,
-        segmentOffset: new go.Point(10, 10)  // Offset parallel links vertically
-      }),
+        segmentOffset: new go.Point(10, 10)
+      },
+        new go.Binding("stroke", "color")
+      ),
       new go.Binding("curviness", "curviness"),
       new go.Binding("fromSpot", "fromSpot", go.Spot.parse).makeTwoWay(go.Spot.stringify),
       new go.Binding("toSpot", "toSpot", go.Spot.parse).makeTwoWay(go.Spot.stringify),
-      $(go.Shape, { toArrow: "Standard", fill: "#357" }),
+      $(go.Shape, { toArrow: "Standard", fill: "#357" },
+        new go.Binding("fill", "color"),
+        new go.Binding("stroke", "color")
+      ),
       $(go.TextBlock,
         { segmentOffset: new go.Point(0, -10) },
         new go.Binding("text", "label")
@@ -712,7 +846,7 @@ export default function BasicSchematic() {
           width: 180,
           minSize: new go.Size(180, NaN),
           maxSize: new go.Size(NaN, NaN),
-          margin: new go.Margin(20)
+          margin: new go.Margin(0, 0, 10, 0)
         },
         new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
         $(go.Shape, "Rectangle",
@@ -791,7 +925,7 @@ export default function BasicSchematic() {
     // PDU node template
     diagram.nodeTemplateMap.add("PDU",
       $(go.Node, "Auto",
-        { width: 180, height: 180 },
+        { width: 180, height: 180, margin: new go.Margin(0, 0, 10, 0) },
         new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
         $(go.Shape, "Rectangle",
           { fill: "#fff", stroke: "#0074D9", strokeWidth: 2 }
@@ -886,7 +1020,7 @@ export default function BasicSchematic() {
           margin: 10
         },
         // Dynamically set layout based on "layout" or "numberOfRows"
-        new go.Binding("layout", "", function(data) {
+        new go.Binding("layout", "", function (data) {
           // Prefer layout string like "2X4" or "4x4"
           if (typeof data.layout === "string" && data.layout.match(/^\d+[xX]\d+$/)) {
             const [cols] = data.layout.split(/[xX]/).map(Number);
@@ -913,6 +1047,92 @@ export default function BasicSchematic() {
         $(go.Panel, 'Auto',
           $(go.Shape, { fill: null, stroke: '#999', strokeWidth: 1, strokeDashArray: [4, 2] }),
           $(go.Placeholder, { padding: 20 })
+        )
+      )
+    );
+    diagram.nodeTemplateMap.add("normalParent",
+      $(go.Node, "Auto",
+        { height: 60, minSize: new go.Size(300, 100), maxSize: new go.Size(300, 100) },
+        $(go.Shape, "Rectangle",
+          { fill: "white", stroke: "#1E88E5", strokeWidth: 2 }
+        ),
+        $(go.Panel, "Vertical",
+          { alignment: go.Spot.Center },
+          $(go.TextBlock,
+            { font: "bold 12pt sans-serif", margin: new go.Margin(4, 8), alignment: go.Spot.Center },
+            new go.Binding("text", "label")
+          ),
+          $(go.TextBlock,
+            { font: "italic 10pt sans-serif", margin: new go.Margin(0, 8, 4, 8), alignment: go.Spot.Center },
+            new go.Binding("text", "description")
+          )
+        ),
+        // LEFT ports with labels
+        $(go.Panel, "Table",
+          {
+            alignment: go.Spot.Left,
+            alignmentFocus: go.Spot.Left,
+            margin: new go.Margin(0, 0, 0, 4),
+            itemTemplate: $(go.Panel, "Horizontal",
+              new go.Binding("row", "row"),
+              $(go.Shape, "Circle",
+                {
+                  width: 8, height: 8,
+                  fill: "black",
+                  fromSpot: go.Spot.Left,
+                  toSpot: go.Spot.Left
+                },
+                new go.Binding("portId", "portId"),
+                new go.Binding("visible", "spot", s => s === go.Spot.Left)
+              ),
+              $(go.TextBlock,  // Added label
+                {
+                  margin: new go.Margin(0, 0, 0, 4),
+                  font: "10pt sans-serif"
+                },
+                new go.Binding("text", "label"),
+                new go.Binding("visible", "spot", s => s === go.Spot.Left)
+              )
+            )
+          },
+          new go.Binding("itemArray", "ports", ports =>
+            ports.filter((p: any) => p.spot === go.Spot.Left)
+              .map((p: any, idx: number) => ({ ...p, row: idx }))
+          )
+        ),
+        // RIGHT ports with labels
+        $(go.Panel, "Table",
+          {
+            alignment: go.Spot.Right,
+            alignmentFocus: go.Spot.Right,
+            margin: new go.Margin(0, 4, 0, 0),
+            itemTemplate: $(go.Panel, "Horizontal",
+              new go.Binding("row", "row"),
+              $(go.TextBlock,  // Added label
+                {
+                  margin: new go.Margin(0, 4, 0, 0),
+                  font: "10pt sans-serif",
+                  alignment: go.Spot.Right
+                },
+                new go.Binding("text", "label"),
+                new go.Binding("visible", "spot", s => s === go.Spot.Right)
+              ),
+              $(go.Shape, "Circle",
+                {
+                  width: 8, height: 8,
+                  fill: "black",
+                  fromSpot: go.Spot.Right,
+                  toSpot: go.Spot.Right
+                },
+                new go.Binding("portId", "portId"),
+                new go.Binding("visible", "spot", s => s === go.Spot.Right)
+              )
+            )
+          },
+          new go.Binding("itemArray", "ports", ports =>
+            ports.filter((p: any) => p.spot === go.Spot.Right)
+              .map((p: any, idx: number) => ({ ...p, row: idx }))
+          )
         )
       )
     );
